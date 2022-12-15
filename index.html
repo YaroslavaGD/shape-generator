@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		input::-webkit-outer-spin-button,
+		input::-webkit-inner-spin-button {
+			/* display: none; <- Crashes Chrome on hover */
+			-webkit-appearance: none;
+			margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+		}
+
+		button{
+			padding: 0;
+			border: none;
+			font: inherit;
+			color: inherit;
+			background-color: transparent;
+
+			cursor: pointer;
+		}
+		.clear-input{
+			border: 1px solid #e4e4e4;
+			padding: 5px;
+			margin-right: 20px;
+		}
+		.clear-button{
+			/*position: fixed;*/
+			/*left: 50%;*/
+			/*bottom: 20%;*/
+			padding: 20px;
+			text-transform: uppercase;
+			background: #e4e4e4;
+			color: #fff;
+			font-family: 'Arial';
+			/*transform: translateX(-50%);*/
+			border: 1px solid #e4e4e4;
+			transition: all 0.7s ease;
+		}
+		.clear-button:hover{
+			/*background: #282a2e;*/
+			background: #868686;
+		}
+
+		.clear-button:focus {
+		    outline:  none;
+		    border: 1px solid #282a2e;
+		}
+		.container{
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: 	translateX(-50%) translateY(-50%);
+		}
+		.container__canvas{
+			display: flex;
+			justify-content: space-between;
+			margin-bottom: 20px;
+		}
+		.container__canvas .canvas{
+			margin: 0 10px;
+		}
+
+		.container__menu{
+			display: flex;
+			justify-content: center;
+			/*align-items: center;*/
+		}
+		.canvas{
+			/*position: absolute;*/
+			/*top: 50%;*/
+			/*left: 50%;*/
+			background: #959595;
+			/*transform: translateX(-50%) translateY(-50%);*/
+		}
+	</style>
+</head>
+<body style="margin: 0;">
+	<div class="container">	
+		<div class="container__canvas">
+			<canvas id="canvas2" class="canvas" style="display: block;">U mad bro.</canvas>
+			<canvas id="canvas" class="canvas" style="display: block;">U mad bro.</canvas>
+			<canvas id="canvas3" class="canvas" style="display: block;">U mad bro.</canvas>
+		</div>
+		<div class="container__menu">
+			<input id="num" class="clear-input" type="number" placeholder="number of figures">
+			<button id="clear" class="clear-button" type="buton">generate</button>
+		</div>
+	</div>
+	<script>
+		let  canvas = document.getElementById('canvas'),
+			 canvas2 =  document.getElementById('canvas2'),
+			 canvas3 =  document.getElementById('canvas3'),
+			 ctx	= canvas.getContext('2d'),
+			 ctx2	= canvas2.getContext('2d'),
+			 ctx3	= canvas3.getContext('2d'),
+			 isMouseDown = false,
+			 coords = [];
+
+		canvas.width = window.innerHeight/3;
+		canvas2.width = window.innerHeight/3;
+		canvas3.width = window.innerHeight/3;
+		canvas.height = window.innerHeight/3;
+		canvas2.height = window.innerHeight/3;
+		canvas3.height = window.innerHeight/3;
+
+
+		//Code============
+		// canvas.addEventListener('mousedown', function(){
+		// 	 isMouseDown = true;
+		// });
+		
+		// canvas.addEventListener('mouseup', function(){
+		// 	 isMouseDown = false;
+		// 	 ctx.beginPath();
+		// 	 coords.push('mouseup');
+		// });
+
+		// ctx.lineWidth = 5 * 2;
+
+		// canvas.addEventListener('mousemove', function(e){
+		// 	if (isMouseDown) {
+		// 		coords.push([e.clientX, e.clientY]);
+		// 		ctx.lineTo(e.clientX, e.clientY);
+		// 		ctx.stroke();
+
+		// 		ctx.beginPath();
+		// 		ctx.arc(e.clientX, e.clientY, 5, 0, Math.PI * 2);
+		// 		ctx.fill();
+
+		// 		ctx.beginPath();
+		// 		ctx.moveTo(e.clientX, e.clientY);
+
+		// 	}
+		// });
+
+		// function save(){
+		// 	localStorage.setItem('coords', JSON.stringify(coords));
+		// }
+
+		function clear() {
+			// ctx.fillStyle = 'white';
+			ctx.fillStyle = '#959595';
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+			ctx.beginPath();
+			ctx.fillStyle = 'black';
+
+			//===============2
+
+			ctx2.fillStyle = '#959595';
+			ctx2.fillRect(0, 0, canvas2.width, canvas2.height);
+
+			ctx2.beginPath();
+			ctx2.fillStyle = 'black';
+
+			//===============3
+
+			ctx3.fillStyle = '#959595';
+			ctx3.fillRect(0, 0, canvas3.width, canvas3.height);
+
+			ctx3.beginPath();
+			ctx3.fillStyle = 'black';
+		}
+
+		// function replay(){
+
+		// 	let timer = setInterval(function(){
+
+		// 		if( !coords.length ){
+		// 			clearInterval(timer);
+		// 			ctx.beginPath();
+		// 			return;
+		// 		}
+
+		// 		let crd = coords.shift(),
+		// 			e = {
+		// 				clientX: crd["0"],
+		// 				clientX: crd["1"]
+		// 			};
+
+		// 		ctx.lineTo(e.clientX, e.clientY);
+		// 		ctx.stroke();
+
+		// 		ctx.beginPath();
+		// 		ctx.arc(e.clientX, e.clientY, 5, 0, Math.PI * 2);
+		// 		ctx.fill();
+
+		// 		ctx.beginPath();
+		// 		ctx.moveTo(e.clientX, e.clientY);
+		// 	}, 30);
+
+		// }
+
+		// document.addEventListener('keydown', function(e){
+		// 	console.log(e.keyCode);
+		// 	if(e.keyCode == 83){
+		// 		save();
+		// 		console.log('Saved');
+		// 	}
+
+		// 	if(e.keyCode == 82){
+				
+		// 		console.log('Replaying..');
+
+		// 		coords = JSON.parse(localStorage.getItem('coords'));
+
+		// 		clear();
+		// 		replay();
+		// 	}
+		// 	if(e.keyCode == 67){
+		// 		clear();
+		// 		console.log('Cleared');
+		// 	}
+		// });
+
+		//code
+		function getRandomFloat(min, max) {
+			return Math.random() * (max - min) + min;
+		}
+
+		function randomInteger(min, max) {
+		    var rand = min - 0.5 + Math.random() * (max - min + 1)
+		    rand = Math.round(rand);
+		    return rand;
+		}
+
+		document.getElementById('clear').addEventListener('click', function(){
+			clear();
+			let numFigures = document.getElementById("num");
+			console.log(numFigures.value);
+			newGeneration(numFigures.value, ctx);
+			newGeneration(numFigures.value, ctx2);
+			newGeneration(numFigures.value, ctx3);
+		});
+
+		function vertexGeneration(n){
+			let vertex = [];
+			let rX, rY;
+			for (var i = 0; i < n; i++) {
+				rX = getRandomFloat(0, window.innerHeight/3);
+				rY = getRandomFloat(0, window.innerHeight/3);
+				vertex.push([rX, rY]);
+			}
+
+			return vertex;
+		}
+
+		function quadrilateralGeneration(){
+			let vertex = vertexGeneration(4);
+			let minX, minY, maxX, maxY;
+
+			minX = vertex[0][0];
+			minY = vertex[0][1];
+
+			maxX = vertex[0][0];
+			maxY = vertex[0][1];
+
+			for (var i = 0; i < 2; i++) {
+				if(vertex[i][0] < minX){
+					minX = vertex[i][0];
+				}
+
+				if(vertex[i][1] < minY){
+					minY = vertex[i][1];
+				}
+
+				if(vertex[i][0] > maxX){
+					maxX = vertex[i][0];
+				}
+
+				if(vertex[i][1] > maxY){
+					maxY = vertex[i][1];
+				}
+			}
+			let vX, vY;
+			let fRect = false;
+			vX = vertex[3][0];
+			vY = vertex[3][1];
+
+			while(!fRect){
+
+				if((vX >= minX) && (vX <= maxX) && (vY >= minY) && (vY <= maxY)){
+					vX = getRandomFloat(0, window.innerHeight/3);
+					vY = getRandomFloat(0, window.innerHeight/3);
+				} else {
+					fRect = true;
+					vertex[3][0] = vX;
+					vertex[3][1] = vY;
+					return vertex;
+				}
+			}
+		}
+
+		function sortVertex(vertex){
+
+			let minX = vertex[0][0];
+			let maxX = vertex[0][0];
+			let resVertex = [];
+			let firstVertex = 0;
+			let secondVertex = 0;
+			let thirdVertex = 0;
+			let fourthVertex = 0;
+			let flSecond = false
+			for (var i = 1; i < vertex.length; i++) {
+				if(minX > vertex[i][0]){
+					minX = vertex[i][0]
+					firstVertex = i;
+				}
+
+				if(maxX < vertex[i][0]){
+					maxX = vertex[i][0];
+					thirdVertex = i;
+				}
+			}
+
+			for (var i = 0; i < vertex.length; i++) {
+				if((i != firstVertex) && (i != thirdVertex)){
+					if(!flSecond){
+						secondVertex = i;
+						flSecond = true;
+					} else{
+						fourthVertex = i;
+						break;
+					}
+
+				}
+			}
+
+			resVertex.push(vertex[firstVertex]);
+			resVertex.push(vertex[secondVertex]);
+			resVertex.push(vertex[thirdVertex]);
+			resVertex.push(vertex[fourthVertex]);
+
+			return resVertex;
+		}
+
+		function randomCircle(){
+			let resArray = [];
+			let rX, rY, rH;
+			let maxH =  window.innerHeight/3;
+			let flagX = true;
+			let flagY = true;
+			let flagCircle = true;
+			rH = getRandomFloat(5, window.innerHeight/6);
+			rX = getRandomFloat(0, window.innerHeight/3);
+			rY = getRandomFloat(0, window.innerHeight/3);
+			let i = 0;	
+			while(flagCircle){
+				if(!flagY && !flagX){
+					flagCircle = false
+				} else {			
+					while(flagY){
+						if (((rY + rH) <= maxH) && ((rY - rH) >= 0)){
+							flagY = false;
+						} else{
+							rY = getRandomFloat(0, window.innerHeight/3);
+						}
+						i++;
+					}
+					while(flagX){			
+						if (((rX + rH) <= maxH) && ((rX - rH) >= 0)){
+							flagX = false;
+						} else{
+							rX = getRandomFloat(0, window.innerHeight/3);
+						}
+						i++;
+					}
+				}
+			}
+			resArray['x'] = rX;
+			resArray['y'] = rY;
+			resArray['r'] = rH;
+			return resArray;
+
+		}
+
+		function randomTriangle(){
+			let resultArray = [];
+			for (var i = 0; i < 3; i++) {
+				let vertex = [];
+				vertex['x'] = getRandomFloat(0, window.innerHeight/3);
+				vertex['y'] = getRandomFloat(0, window.innerHeight/3);
+				resultArray.push(vertex);
+			}
+			return resultArray;
+		}
+
+		function newGeneration(numFigures = 6, custom_ctx){
+			const MAX_FIGURES = 6;
+			const CIRCLE_INDEX = 0;
+			const TRIANGLE_INDEX = 1;
+			const RECTANGLE_INDEX = 2;
+			if (!(numFigures <= MAX_FIGURES) || (numFigures === '')) {
+				numFigures = MAX_FIGURES;
+			}
+			for (var j = 0; j < numFigures; j++) {
+				let indexFigure = randomInteger(0,2);
+				// console.log('indexfigure = ' + indexFigure);
+
+				switch(indexFigure) {
+					case CIRCLE_INDEX:
+					// circle
+					let circleArray = randomCircle();
+					// ctx.moveTo(circleArray['x'], circleArray['y']);
+					custom_ctx.beginPath();
+					custom_ctx.arc(circleArray['x'], circleArray['y'], circleArray['r'], 0, 2 * Math.PI);
+					custom_ctx.closePath();
+					custom_ctx.stroke();
+					break;
+
+					case TRIANGLE_INDEX:
+					// triangle
+					let triangleArray = randomTriangle();
+					custom_ctx.beginPath();
+					custom_ctx.moveTo(triangleArray[0]['x'], triangleArray[0]['y']);
+					custom_ctx.lineTo(triangleArray[1]['x'], triangleArray[1]['y']);
+					custom_ctx.lineTo(triangleArray[2]['x'], triangleArray[2]['y']);
+					custom_ctx.closePath();
+					custom_ctx.stroke();
+					break;
+
+					case RECTANGLE_INDEX:
+					//rectangle
+					var vertex = quadrilateralGeneration();
+					var sortVertexArray = sortVertex(vertex);
+					custom_ctx.beginPath();
+					custom_ctx.moveTo(sortVertexArray[0][0], sortVertexArray[0][1]);
+					for (var i = 1; i < 4; i++) {
+						ctx.lineTo(sortVertexArray[i][0], sortVertexArray[i][1]);
+					}
+					custom_ctx.closePath();
+					custom_ctx.stroke();
+					// break;
+
+				}
+			}
+			// let grad = ctx.createLinearGradient(0, 0, 500, 0);
+			// let rX, rY;
+			// let rH, rW;
+			// grad.addColorStop('0', 'magenta');
+			// grad.addColorStop('.50', 'blue');
+			// grad.addColorStop('1', 'red');
+			// ctx.fillStyle = grad;
+
+			// // circle
+			// let circleArray = randomCircle();
+			// ctx.arc(circleArray['x'], circleArray['y'], circleArray['r'], 0, 2 * Math.PI);
+			// ctx.stroke();
+
+			// // triangle
+			// let triangleArray = randomTriangle();
+			// ctx.beginPath();
+			// ctx.moveTo(triangleArray[0]['x'], triangleArray[0]['y']);
+			// ctx.lineTo(triangleArray[1]['x'], triangleArray[1]['y']);
+			// ctx.lineTo(triangleArray[2]['x'], triangleArray[2]['y']);
+			// ctx.closePath();
+			// ctx.stroke();
+
+			// // quadrilateral 
+			// var vertex = quadrilateralGeneration();
+			// var sortVertexArray = sortVertex(vertex);
+			// ctx.moveTo(sortVertexArray[0][0], sortVertexArray[0][1]);
+			// for (var i = 1; i < 4; i++) {
+			// 	ctx.lineTo(sortVertexArray[i][0], sortVertexArray[i][1]);
+			// }
+			// ctx.closePath();
+			// ctx.stroke();
+		}
+
+		newGeneration(6, ctx);
+		newGeneration(6, ctx2);
+		newGeneration(6, ctx3);
+	</script>
+</body>
+</html>
